@@ -1,4 +1,3 @@
-Below is a reformatted version of your markdown document. It features clearly defined sections, consistent code block formatting, and improved visual hierarchy for better readability:
 
 ---
 

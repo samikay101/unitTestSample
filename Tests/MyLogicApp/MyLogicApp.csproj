@@ -5,15 +5,19 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+
   <ItemGroup>
+    <!-- Logic App test packages -->
     <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Extension" Version="1.114.0.40" />
-    <PackageReference Include="MSTest" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview" />
+
+    <!-- Test framework packages -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview" />
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
   </ItemGroup>
+
   <ItemGroup Label="UnitTestSettingsConfig">
     <Content Include="sampleWorkflow\*.config" Link="sampleWorkflow\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -1,0 +1,14 @@
+{
+  "arm-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('arm-ConnectionRuntimeUrl')"
+  },
+  "arm-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "Raw",
+      "scheme": "Key",
+      "parameter": "@appsetting('arm-connectionKey')"
+    }
+  }
+}

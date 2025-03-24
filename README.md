@@ -1,61 +1,61 @@
-📘 How to Run Tests in a CI/CD Pipeline using VSTest in Azure DevOps
+Below is a reformatted version of your markdown document. It features clearly defined sections, consistent code block formatting, and improved visual hierarchy for better readability:
 
-Here’s a **clear, step-by-step documentation section** that explains:
+---
+
+# 📘 How to Run Tests in a CI/CD Pipeline using VSTest in Azure DevOps
+
+This guide provides a **step-by-step walkthrough** for setting up automated tests in your CI/CD pipeline using the built-in `VSTest@3` task in Azure DevOps.
 
 ---
 
 ## 🤔 What is `VSTest@3`?
 
-`VSTest@3` is a built-in task in **Azure DevOps Pipelines** designed to **run automated tests** as part of your CI/CD workflow. It wraps around the `VSTest.Console.exe` runner, which is Microsoft's official tool for executing unit tests in Visual Studio-based projects.
+`VSTest@3` is an Azure DevOps Pipelines task that runs automated tests as part of your CI/CD workflow. It leverages Microsoft's `VSTest.Console.exe` to execute unit tests in Visual Studio projects.
 
-In a CI/CD environment, `VSTest@3` ensures:
+In a CI/CD context, `VSTest@3` provides:
 
-✅ **Automatic discovery of test DLLs** (with a wildcard like `*Tests.dll`)  
-✅ **Remote test execution** on build agents (hosted or self-hosted)  
-✅ **Generation of detailed test reports** (`.trx` format) that integrate with Azure DevOps' test reporting features  
-✅ **Advanced configurations**, such as:
-- Running tests in parallel
-- Filtering or excluding specific tests
-- Collecting code coverage
-- Diagnostic logging
+- ✅ **Automatic discovery of test DLLs** (using wildcards such as `*Tests.dll`)
+- ✅ **Remote test execution** on both hosted and self-hosted build agents
+- ✅ **Generation of detailed test reports** in the `.trx` format that integrate with Azure DevOps reporting
+- ✅ **Advanced configurations** including:
+  - Parallel test execution
+  - Filtering or excluding specific tests
+  - Collecting code coverage data
+  - Diagnostic logging
 
 ---
 
 ## 📌 How is `VSTest@3` Different from `dotnet test`?
 
-Here’s a feature-by-feature comparison to help clarify why to use `VSTest@3` in pipelines instead of `dotnet test`:
+The following table compares features between `dotnet test` (typically used in VS Code) and `VSTest@3` (designed for Azure DevOps):
 
-| **Feature**                     | `dotnet test` (VS Code)         | `VSTest@3` (Azure DevOps)                                     |
-|----------------------------------|----------------------------------|----------------------------------------------------------------|
-| ✅ **Runs tests?**              | Yes                              | Yes                                                            |
-| 🚫 **Runs in CI/CD?**           | No (meant for local dev)         | Yes (meant for pipelines)                                      |
-| ✅ **Finds tests automatically?** | Yes                              | No (you must specify `*Tests.dll`)                             |
-| 🚫 **Generates test reports?**  | No (by default)                  | Yes (produces `.trx` results for Azure DevOps)                |
-| ⚠️ **Can exclude tests?**       | Limited (some options)           | Yes (supports `testFiltercriteria`)                            |
-| 🚫 **Supports code coverage?**  | No (by default)                  | Yes (`codeCoverageEnabled: true`)                              |
-| ⚠️ **Supports parallel execution?** | Limited                       | Yes                                                            |
-
----
-Certainly! Here's a more **technical and precise rewrite** in **Markdown**, using proper formatting, indentation, and emphasis for clarity and professionalism:
+| **Feature**                           | `dotnet test` (VS Code)            | `VSTest@3` (Azure DevOps)                           |
+|---------------------------------------|------------------------------------|----------------------------------------------------|
+| ✅ **Runs tests?**                     | Yes                                | Yes                                                |
+| 🚫 **Runs in CI/CD?**                  | No (intended for local development)| Yes (specifically for pipelines)                   |
+| ✅ **Automatically finds tests?**      | Yes                                | No (requires specifying `*Tests.dll`)              |
+| 🚫 **Generates test reports?**         | No (by default)                    | Yes (produces `.trx` reports for Azure DevOps)       |
+| ⚠️ **Can exclude tests?**              | Limited options                    | Yes (supports `testFiltercriteria`)                |
+| 🚫 **Supports code coverage?**         | No (by default)                    | Yes (`codeCoverageEnabled: true`)                  |
+| ⚠️ **Supports parallel execution?**    | Limited                            | Yes                                                |
 
 ---
 
 ## Step 1: 🗂️ Organize Your Repository Structure
 
-To ensure a clean and maintainable codebase that supports testability and CI/CD automation, structure your repository as follows:
+A well-structured repository is essential for maintainability and testability. Below are some guidelines for organizing your projects.
 
 ### 🔧 Project Layout Guidelines
 
-- **Ensure the Logic App project and the Unit Test project** are in distinct directories.
-  
- ```markdown
+- **Separate projects:** Keep your Logic App project and Unit Test project in distinct directories.
+
 ```plaintext
 ├── MyLogicApp/                      # Azure Logic App Standard project
 │   ├── .vscode/                    
 │   ├── Artifacts/                  
 │   ├── lib/                        
 │   ├── MyWorkflowSample/           # Workflow definitions folder
-│   │   └── workflow.json           # JSON definition of the workflow (triggers, actions, etc.)
+│   │   └── workflow.json           # Workflow JSON (triggers, actions, etc.)
 │   ├── workflow-designtime/       
 │   │   ├── host.json               
 │   │   └── local.settings.json     
@@ -67,69 +67,72 @@ To ensure a clean and maintainable codebase that supports testability and CI/CD 
 │   └── parameters.json             
 ├── Tests/                           # Unit and integration test project
 │   ├── MyLogicAppTestProject/       # Main test project folder
-│   │   ├── bin/                   # Compiled binary output (autogenerated)
-│   │   ├── obj/                   # Intermediate build files (autogenerated)
-│   │   ├── MySampleWorkflow/      # Folder grouping tests for a specific workflow
-│   │   │   └── MockOutputs/       # Contains mock data for test execution
-│   │   │   └── MyWorkflowTest.cs  # C# test class for workflow unit testing
-│   ├── TestExecutor.cs            # Shared utility class to execute tests
-│   ├── MyLogicAppTestProject.csproj # C# project file for test project
-│   └── Tests.sln                  # Visual Studio solution file for test projects
-├── deployments/                    # CI/CD deployment folder
-│   ├── MyLogicAppDeployment/       # Deployment artifacts for Logic App
-│   │   ├── pipelines/              # CI/CD pipeline definitions
-│   │   │   └── CI-Pipeline.yml     # Pipeline to build
+│   │   ├── bin/                     # Compiled binary output (autogenerated)
+│   │   ├── obj/                     # Intermediate build files (autogenerated)
+│   │   ├── MySampleWorkflow/        # Grouping tests for a specific workflow
+│   │   │   └── MockOutputs/         # Contains mock data for test execution
+│   │   │   └── MyWorkflowTest.cs    # C# test class for workflow testing
+│   ├── TestExecutor.cs              # Shared utility for executing tests
+│   ├── MyLogicAppTestProject.csproj # Project file for the test project
+│   └── Tests.sln                    # Visual Studio solution file for tests
+├── deployments/                     # CI/CD deployment folder
+│   ├── MyLogicAppDeployment/        # Deployment artifacts for the Logic App
+│   │   ├── pipelines/               # CI/CD pipeline definitions
+│   │   │   └── CI-Pipeline.yml      # Pipeline configuration file
 ```
-- The unit test project (`MyLogicApp.Tests`) must **reference** the main Logic App project to access workflow definitions and shared components.
+
+> **Note:** Ensure that the unit test project (e.g., `MyLogicApp.Tests`) references the main Logic App project to access workflow definitions and shared components.
 
 ### 📁 Add Deployment and Pipeline Structure
 
-Within the root of your repository:
+In the root directory of your repository:
 
-1. **Create a `deployments/` directory** to hold all DevOps-related assets.
-2. Inside `deployments/`, create a folder specific to your Logic App (e.g., `MyLogicApp`).
-3. Within `MyLogicApp/`, create a subfolder named `pipelines/`.
-4. Inside `pipelines/`, create a new YAML file for your CI configuration:
-   ```
-   deployments/
-     └── MyLogicApp/
-         └── pipelines/
-             └── CI-Pipeline.yml
-   ```
+1. **Create a `deployments/` folder** to store all DevOps-related assets.
+2. Inside `deployments/`, create a folder for your Logic App (e.g., `MyLogicAppDeployment`).
+3. Within that folder, create a subfolder named `pipelines/`.
+4. Place your CI configuration YAML file (e.g., `CI-Pipeline.yml`) inside the `pipelines/` directory.
 
-> ✅ This structure promotes separation of concerns, simplifies CI configuration management, and scales well for multiple workflows or environments.
+Example structure:
+
+```plaintext
+deployments/
+└── MyLogicAppDeployment/
+    └── pipelines/
+        └── CI-Pipeline.yml
+```
+
+> This structure promotes separation of concerns, simplifies CI configuration management, and scales well for multiple workflows or environments.
 
 ---
 
-```markdown
- Creating the Azure DevOps Pipeline (YAML)
+## Creating the Azure DevOps Pipeline (YAML)
 
-This section will guide customers through writing the `azure-pipelines.yml` file.
+Follow these steps to create your `azure-pipelines.yml` file:
 
 ### 1. Define the Trigger
 
-The trigger section tells Azure DevOps when to run the pipeline.
+Specify which branches will trigger the pipeline:
 
 ```yaml
 trigger:
   branches:
     include:
-      - main        # Run pipeline on push to main branch
-      - devFeatureBranch     # Run pipeline on push to feature branch branch
+      - main              # Run pipeline on push to main branch
+      - devFeatureBranch  # Run pipeline on push to feature branches
 ```
 
 ### 2. Define the Build Agent
 
-This selects a Microsoft-hosted agent with the latest Windows environment to run your build and tests.
+Select a Microsoft-hosted agent with the latest Windows environment:
 
 ```yaml
 pool:
-  vmImage: 'windows-latest'  # Use the latest Windows VM for build/test
+  vmImage: 'windows-latest'  # Latest Windows VM for build/test
 ```
 
-### 3. Set Up .NET SDK
+### 3. Set Up the .NET SDK
 
-This step installs the required .NET SDK version to ensure your build and tests run in the correct environment.
+Install the required .NET SDK to ensure the correct build environment:
 
 ```yaml
 steps:
@@ -137,12 +140,12 @@ steps:
   displayName: 'Install .NET SDK'
   inputs:
     packageType: 'sdk'
-    version: '6.x'  # Adjust this to match your project’s .NET version
+    version: '6.x'  # Adjust to your project’s .NET version
 ```
 
 ### 4. Restore Dependencies
 
-Restores all project dependencies, ensuring that all required packages are downloaded before the build.
+Restore all project dependencies to ensure necessary packages are available:
 
 ```yaml
 - script: dotnet restore
@@ -152,7 +155,7 @@ Restores all project dependencies, ensuring that all required packages are downl
 
 ### 5. Build the Project
 
-Compiles the solution in Release mode. The `--no-restore` flag is used since dependencies were already restored in the previous step.
+Compile the solution in Release mode. The `--no-restore` flag is used since dependencies have been restored:
 
 ```yaml
 - script: dotnet build --configuration Release --no-restore
@@ -162,26 +165,29 @@ Compiles the solution in Release mode. The `--no-restore` flag is used since dep
 
 ### 6. Run Unit Tests Using VSTest@3
 
+Configure the pipeline to run your unit tests:
+
 ```yaml
 - task: VSTest@3
   displayName: 'Run Unit Tests'
   inputs:
     testSelector: 'testAssemblies'
-    testAssemblyVer2: '**\*Tests.dll'  # Run all test assemblies
-    searchFolder: '$(Build.SourcesDirectory)/LogicAppProject/tests' #TODO: Update 
+    testAssemblyVer2: '**/*Tests.dll'    # Runs all test assemblies
+    searchFolder: '$(Build.SourcesDirectory)/LogicAppProject/tests'  # Update as necessary
     codeCoverageEnabled: true
     platform: '$(BuildPlatform)'
     configuration: '$(BuildConfiguration)'
 ```
 
 **Explanation:**
-- **Test Selection:** Uses a wildcard to pick up all assemblies ending in `Tests.dll`.
+
+- **Test Selection:** Uses a wildcard (`*Tests.dll`) to discover test assemblies.
 - **Search Folder:** Specifies where test assemblies are located.
-- **Code Coverage:** Enables code coverage reporting, providing insights into how much code is being tested.
+- **Code Coverage:** Enables code coverage reporting to provide insight into test coverage.
 
 ### 7. Publish Test Results
 
-Publishes the test results to Azure DevOps, so test reports can be viewed in the pipeline summary.
+Finally, publish the test results so that they appear in the Azure DevOps pipeline summary:
 
 ```yaml
 - task: PublishTestResults@2
@@ -191,4 +197,5 @@ Publishes the test results to Azure DevOps, so test reports can be viewed in the
     testResultsFiles: '**/TestResults/*.trx'
     mergeTestResults: true
 ```
-```
+
+---

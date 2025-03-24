@@ -21,13 +21,23 @@ variables:
   testResultsFiles: '**/TestResults/*.trx'
 
 steps:
+# Restore external packages (using agent's default nuget.config which includes nuget.org)
 - task: DotNetCoreCLI@2
-  displayName: 'Restore NuGet packages'
+  displayName: 'Restore External NuGet Packages'
   inputs:
     command: 'restore'
     projects: '$(solution)'
-    feedsToUse: 'config'
-    nugetConfigPath: 'Tests/nuget.config'
+    arguments: '--ignore-failed-sources'
+
+# Restore local packages by adding the local feed explicitly via the command line.
+- task: DotNetCoreCLI@2
+  displayName: 'Restore Local NuGet Packages'
+  inputs:
+    command: 'restore'
+    projects: '$(solution)'
+    # Use the build sources directory to point to your Tests folder
+    arguments: '--source $(Build.SourcesDirectory)/Tests'
+
 
 # 2. Build the solution in Debug configuration.
 - task: DotNetCoreCLI@2

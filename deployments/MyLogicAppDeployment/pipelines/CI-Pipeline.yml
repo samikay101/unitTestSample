@@ -28,6 +28,7 @@ steps:
     command: 'restore'
     projects: '$(solution)'
     arguments: '--ignore-failed-sources'
+  continueOnError: true
 
 # Restore local packages by adding the local feed explicitly via the command line.
 - task: DotNetCoreCLI@2
@@ -35,8 +36,8 @@ steps:
   inputs:
     command: 'restore'
     projects: '$(solution)'
-    # Use the build sources directory to point to your Tests folder
     arguments: '--source $(Build.SourcesDirectory)/Tests'
+  continueOnError: true
 
 
 # 2. Build the solution in Debug configuration.

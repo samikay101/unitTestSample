@@ -21,7 +21,12 @@ variables:
   testResultsFiles: '**/TestResults/*.trx'
 
 steps:
-# Restore external packages (using agent's default nuget.config which includes nuget.org)
+# 1. Add the local NuGet source from the Tests folder.
+- script: |
+    dotnet nuget add source "$(Build.SourcesDirectory)/Tests" --name local
+  displayName: 'Add Local NuGet Source'
+
+# 2. Restore external packages (using agent's default nuget.config which includes nuget.org)
 - task: DotNetCoreCLI@2
   displayName: 'Restore External NuGet Packages'
   inputs:
@@ -30,7 +35,7 @@ steps:
     arguments: '--ignore-failed-sources'
   continueOnError: true
 
-# Restore local packages by adding the local feed explicitly via the command line.
+# 3. Restore local packages by adding the local feed explicitly via the command line.
 - task: DotNetCoreCLI@2
   displayName: 'Restore Local NuGet Packages'
   inputs:
@@ -39,29 +44,23 @@ steps:
     arguments: '--source $(Build.SourcesDirectory)/Tests'
   continueOnError: true
 
-
-# 2. Build the solution in Debug configuration.
+# 4. Build the solution in Debug configuration.
 - task: DotNetCoreCLI@2
   displayName: 'Build solution'
   inputs:
     command: 'build'
     projects: '$(solution)'
     arguments: '--configuration $(buildConfiguration)'
-  # Troubleshooting: Check build logs to confirm successful compilation.
 
-# 3. Run unit tests using dotnet test (cross-platform alternative to VSTest@3).
+# 5. Run unit tests using dotnet test.
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
   inputs:
     command: 'test'
     projects: '$(solution)'
     arguments: '--configuration $(buildConfiguration) --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage"'
-  # Troubleshooting:
-  # - The "--logger" option generates TRX files for test results.
-  # - The "--collect" option gathers code coverage data.
-  # - If tests do not run or fail unexpectedly, review the verbose output from dotnet test.
 
-# 4. Publish test results so they appear in the Azure DevOps Test Results tab.
+# 6. Publish test results so they appear in the Azure DevOps Test Results tab.
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
   inputs:
@@ -69,6 +68,4 @@ steps:
     testResultsFiles: '$(testResultsFiles)'
     mergeTestResults: true
     testRunTitle: 'Unit Test Results'
-  # Troubleshooting:
-  # - Confirm that TRX files are generated in the expected location.
-  # - Check Azure DevOps logs for detailed error messages if test results fail to publish.
+  condition: always()

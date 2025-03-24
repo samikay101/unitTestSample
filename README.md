@@ -1,6 +1,3 @@
-
----
-
 # 📘 How to Run Tests in a CI/CD Pipeline using VSTest in Azure DevOps
 
 This guide provides a **step-by-step walkthrough** for setting up automated tests in your CI/CD pipeline using the built-in `VSTest@3` task in Azure DevOps.
@@ -44,6 +41,27 @@ The following table compares features between `dotnet test` (typically used in V
 
 A well-structured repository is essential for maintainability and testability. Below are some guidelines for organizing your projects.
 
+
+### 📁 Add Deployment and Pipeline Structure
+
+In the root directory of your repository:
+
+1. **Create a `deployments/` folder** to store all DevOps-related assets.
+2. Inside `deployments/`, create a folder for your Logic App (e.g., `MyLogicAppDeployment`).
+3. Within that folder, create a subfolder named `pipelines/`.
+4. Place your CI configuration YAML file (e.g., `CI-Pipeline.yml`) inside the `pipelines/` directory.
+
+Example structure:
+
+```plaintext
+deployments/
+└── MyLogicAppDeployment/
+    └── pipelines/
+        └── CI-Pipeline.yml
+```
+
+> This structure promotes separation of concerns, simplifies CI configuration management, and scales well for multiple workflows or environments.
+
 ### 🔧 Project Layout Guidelines
 
 - **Separate projects:** Keep your Logic App project and Unit Test project in distinct directories.
@@ -80,28 +98,7 @@ A well-structured repository is essential for maintainability and testability. B
 │   │   │   └── CI-Pipeline.yml      # Pipeline configuration file
 ```
 
-> **Note:** Ensure that the unit test project (e.g., `MyLogicApp.Tests`) references the main Logic App project to access workflow definitions and shared components.
-
-### 📁 Add Deployment and Pipeline Structure
-
-In the root directory of your repository:
-
-1. **Create a `deployments/` folder** to store all DevOps-related assets.
-2. Inside `deployments/`, create a folder for your Logic App (e.g., `MyLogicAppDeployment`).
-3. Within that folder, create a subfolder named `pipelines/`.
-4. Place your CI configuration YAML file (e.g., `CI-Pipeline.yml`) inside the `pipelines/` directory.
-
-Example structure:
-
-```plaintext
-deployments/
-└── MyLogicAppDeployment/
-    └── pipelines/
-        └── CI-Pipeline.yml
-```
-
-> This structure promotes separation of concerns, simplifies CI configuration management, and scales well for multiple workflows or environments.
-
+> **Note:** Ensure that the unit test project references the main Logic App project to access workflow definitions and shared components.
 ---
 
 ## Creating the Azure DevOps Pipeline (YAML)

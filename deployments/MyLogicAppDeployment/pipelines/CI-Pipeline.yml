@@ -28,8 +28,8 @@ steps:
 
 # 2. Manually add the local packages to your project.
 - script: |
-    dotnet add Tests/MyLogicApp/MyLogicApp.csproj package Microsoft.Azure.Workflows.WebJobs.Extension --version 1.114.0.40
-    dotnet add Tests/MyLogicApp/MyLogicApp.csproj package Microsoft.Azure.Workflows.WebJobs.Tests.Extension --version 1.0.0-preview
+    dotnet add Tests/MyLogicApp/MyLogicApp.csproj package Microsoft.Azure.Workflows.WebJobs.Extension --version "1.114.0.40" --source "Tests"
+    dotnet add Tests/MyLogicApp/MyLogicApp.csproj package Microsoft.Azure.Workflows.WebJobs.Tests.Extension --version "1.0.0-preview" --source "Tests"
   displayName: 'Manually add local packages'
 
 # 3. List NuGet sources to verify the local source was added.
@@ -52,7 +52,7 @@ steps:
   inputs:
     command: 'restore'
     projects: '$(solution)'
-    arguments: '--source $(Build.SourcesDirectory)/Tests'
+    arguments: '--source "Tests"'
   continueOnError: true
 
 # 6. Build the solution in Debug configuration.

@@ -26,7 +26,18 @@ steps:
     dotnet nuget add source "$(Build.SourcesDirectory)/Tests" --name local
   displayName: 'Add Local NuGet Source'
 
-# 2. Restore external packages (using agent's default nuget.config which includes nuget.org)
+# 2. Manually add the local packages to your project.
+- script: |
+    dotnet add Tests/MyLogicApp/MyLogicApp.csproj package Microsoft.Azure.Workflows.WebJobs.Extension --version 1.114.0.40
+    dotnet add Tests/MyLogicApp/MyLogicApp.csproj package Microsoft.Azure.Workflows.WebJobs.Tests.Extension --version 1.0.0-preview
+  displayName: 'Manually add local packages'
+
+# 3. List NuGet sources to verify the local source was added.
+- script: |
+    dotnet nuget list source
+  displayName: 'List NuGet Sources'
+
+# 4. Restore external packages (using agent's default nuget.config which includes nuget.org)
 - task: DotNetCoreCLI@2
   displayName: 'Restore External NuGet Packages'
   inputs:
@@ -35,7 +46,7 @@ steps:
     arguments: '--ignore-failed-sources'
   continueOnError: true
 
-# 3. Restore local packages by adding the local feed explicitly via the command line.
+# 5. Restore local packages by adding the local feed explicitly via the command line.
 - task: DotNetCoreCLI@2
   displayName: 'Restore Local NuGet Packages'
   inputs:
@@ -44,7 +55,7 @@ steps:
     arguments: '--source $(Build.SourcesDirectory)/Tests'
   continueOnError: true
 
-# 4. Build the solution in Debug configuration.
+# 6. Build the solution in Debug configuration.
 - task: DotNetCoreCLI@2
   displayName: 'Build solution'
   inputs:
@@ -52,7 +63,7 @@ steps:
     projects: '$(solution)'
     arguments: '--configuration $(buildConfiguration)'
 
-# 5. Run unit tests using dotnet test.
+# 7. Run unit tests using dotnet test.
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
   inputs:
@@ -60,7 +71,7 @@ steps:
     projects: '$(solution)'
     arguments: '--configuration $(buildConfiguration) --logger "trx;LogFileName=test_results.trx" --collect:"XPlat Code Coverage"'
 
-# 6. Publish test results so they appear in the Azure DevOps Test Results tab.
+# 8. Publish test results so they appear in the Azure DevOps Test Results tab.
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
   inputs:

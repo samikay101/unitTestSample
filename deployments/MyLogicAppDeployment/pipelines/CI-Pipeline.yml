@@ -1,77 +1,63 @@
-# Trigger the pipeline on changes to the main branch and specific paths.
+# CI-Pipeline.yml
 trigger:
   branches:
     include:
-      - main
-  paths:
-    include:
-      - 'MyLogicApp/**'
-      - 'Tests/**'
-      - 'deployments/MyLogicAppDeployment/pipelines/CI-Pipeline.yml'
+      - '*'    # Run on pushes to any branch
 
-# Use the Ubuntu agent image.
 pool:
   vmImage: 'ubuntu-latest'
 
-# Define variables for build configuration, solution location, and feed URLs.
-variables:
-  buildConfiguration: 'Debug'
-  solution: 'Tests/Tests.sln'
-  azureArtifactsFeed: 'https://pkgs.dev.azure.com/logicappsiactesting/logicappsiactest/_packaging/AutomatedTesting/nuget/v3/index.json'
-
 steps:
-# 1. Install the NuGet tool.
+- checkout: self
+  displayName: 'Checkout repository'
+
+# Install the NuGet tool for package management
 - task: NuGetToolInstaller@1
+  inputs:
+    versionSpec: '>=5.0.0'
   displayName: 'Install NuGet Tool'
 
-# 2. Authenticate to Azure Artifacts.
+# Authenticate to Azure Artifacts to access packages from the AutomatedTesting feed
 - task: NuGetAuthenticate@0
   displayName: 'Authenticate to Azure Artifacts'
 
-# 3. Restore internal packages using the Azure Artifacts feed.
+# Install the .NET 6 SDK on the agent
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.0.x'
+    includePreviewVersions: false
+  displayName: 'Install .NET 6 SDK'
+
+# Restore NuGet packages using DotNetCoreCLI@2 with the nuget.config file for Azure Artifacts
 - task: DotNetCoreCLI@2
-  displayName: 'Restore Internal Packages from Azure Artifacts'
+  displayName: 'Restore NuGet packages'
   inputs:
     command: 'restore'
-    projects: '$(solution)'
-    # arguments: '--source "$(azureArtifactsFeed)"'
-  continueOnError: true
+    projects: 'Tests/Tests.sln'
+    feedsToUse: 'config'
+    nugetConfigPath: 'nuget.config'
 
-# 4. Restore public packages by explicitly specifying the public NuGet feed.
-- task: DotNetCoreCLI@2
-  displayName: 'Restore Public Packages from nuget.org'
-  inputs:
-    command: 'restore'
-    projects: '$(solution)'
-    arguments: '--source "https://api.nuget.org/v3/index.json"'
-  continueOnError: true
-
-# 5. Build the solution in Debug configuration.
+# Build the solution in Release configuration (skip restore since it’s already done)
 - task: DotNetCoreCLI@2
   displayName: 'Build solution'
   inputs:
     command: 'build'
-    projects: '$(solution)'
-    arguments: '--configuration $(buildConfiguration)'
+    projects: 'Tests/Tests.sln'
+    arguments: '--configuration Release --no-restore'
 
-# 6. Run unit tests using VSTest.
-- task: VSTest@2
-  displayName: 'Run unit tests using VSTest'
+# Run tests using DotNetCoreCLI@2 and output the test results in TRX format
+- task: DotNetCoreCLI@2
+  displayName: 'Run tests'
   inputs:
-    testSelector: 'testAssemblies'
-    # Adjust the pattern below if your test assembly name or output location is different.
-    testAssemblyVer2: '**/bin/$(buildConfiguration)/**/MyLogicApp.dll'
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-    diagnosticsEnabled: true
-    codeCoverageEnabled: true
+    command: 'test'
+    projects: 'Tests/Tests.sln'
+    arguments: '--configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
 
-
-# 7. Publish test results so they appear in the Azure DevOps Test Results tab.
+# Publish test results to Azure DevOps for visualization in the build summary
 - task: PublishTestResults@2
-  displayName: 'Publish Test Results'
+  displayName: 'Publish test results'
   inputs:
     testResultsFormat: 'VSTest'
-    testResultsFiles: '$(testResultsFiles)'
+    testResultsFiles: '**/test_results.trx'
     mergeTestResults: true
-    testRunTitle: 'Unit Test Results'
-  condition: always()

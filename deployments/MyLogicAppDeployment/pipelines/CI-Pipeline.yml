@@ -34,7 +34,7 @@ steps:
   inputs:
     command: 'restore'
     projects: '$(solution)'
-    arguments: '--source "$(azureArtifactsFeed)"'
+    # arguments: '--source "$(azureArtifactsFeed)"'
   continueOnError: true
 
 # 4. Restore public packages by explicitly specifying the public NuGet feed.

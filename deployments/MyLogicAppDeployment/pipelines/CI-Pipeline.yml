@@ -11,17 +11,17 @@ steps:
 - checkout: self
   displayName: 'Checkout repository'
 
-# Install the NuGet tool for package management
+# Install the NuGet tool for package management.
 - task: NuGetToolInstaller@1
   inputs:
     versionSpec: '>=5.0.0'
   displayName: 'Install NuGet Tool'
 
-# Authenticate to Azure Artifacts to access packages from the AutomatedTesting feed
+# Authenticate to Azure Artifacts to access packages from the AutomatedTesting feed.
 - task: NuGetAuthenticate@0
   displayName: 'Authenticate to Azure Artifacts'
 
-# Install the .NET 6 SDK on the agent
+# Install the .NET 6 SDK on the agent.
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
@@ -29,16 +29,17 @@ steps:
     includePreviewVersions: false
   displayName: 'Install .NET 6 SDK'
 
-# Restore NuGet packages using DotNetCoreCLI@2 with the nuget.config file for Azure Artifacts
+# Restore NuGet packages using DotNetCoreCLI@2.
+# Note: On the Ubuntu agent, use the relative path "Tests/nuget.config" (not the Windows absolute path).
 - task: DotNetCoreCLI@2
   displayName: 'Restore NuGet packages'
   inputs:
     command: 'restore'
     projects: 'Tests/Tests.sln'
     feedsToUse: 'config'
-    nugetConfigPath: 'nuget.config'
+    nugetConfigPath: 'Tests/nuget.config'
 
-# Build the solution in Release configuration (skip restore since it’s already done)
+# Build the solution in Release configuration (skip restore since it’s already done).
 - task: DotNetCoreCLI@2
   displayName: 'Build solution'
   inputs:
@@ -46,7 +47,7 @@ steps:
     projects: 'Tests/Tests.sln'
     arguments: '--configuration Release --no-restore'
 
-# Run tests using DotNetCoreCLI@2 and output the test results in TRX format
+# Run tests using DotNetCoreCLI@2 and output the results in TRX format.
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
   inputs:
@@ -54,7 +55,7 @@ steps:
     projects: 'Tests/Tests.sln'
     arguments: '--configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
 
-# Publish test results to Azure DevOps for visualization in the build summary
+# Publish test results to Azure DevOps for visualization in the build summary.
 - task: PublishTestResults@2
   displayName: 'Publish test results'
   inputs:

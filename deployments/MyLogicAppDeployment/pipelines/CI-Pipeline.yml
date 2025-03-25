@@ -31,6 +31,7 @@ steps:
 
 # Restore NuGet packages using DotNetCoreCLI@2.
 # Note: On the Ubuntu agent, use the relative path "Tests/nuget.config" (not the Windows absolute path).
+# Restore NuGet packages using DotNetCoreCLI@2.
 - task: DotNetCoreCLI@2
   displayName: 'Restore NuGet packages'
   inputs:
@@ -38,6 +39,11 @@ steps:
     projects: 'Tests/Tests.sln'
     feedsToUse: 'config'
     nugetConfigPath: 'Tests/nuget.config'
+
+- script: |
+    echo "Listing restored NuGet packages..."
+    dotnet list Tests/Tests.sln package --include-transitive
+  displayName: 'List restored NuGet packages'
 
 # Build the solution in Release configuration (skip restore since it’s already done).
 - task: DotNetCoreCLI@2

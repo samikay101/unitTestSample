@@ -37,8 +37,6 @@ steps:
   inputs:
     command: 'restore'
     projects: 'Tests/Tests.sln'
-    feedsToUse: 'config'
-    nugetConfigPath: 'Tests/nuget.config'
 
 - script: |
     echo "Listing restored NuGet packages..."

@@ -5,11 +5,11 @@
       "path": "./MyLogicApp"
     },
     {
-      "name": "Tests",
-      "path": "Tests"
+      "path": "deployments"
     },
     {
-      "path": "deployments"
+      "name": "Tests",
+      "path": "Tests"
     }
   ],
   "settings": {

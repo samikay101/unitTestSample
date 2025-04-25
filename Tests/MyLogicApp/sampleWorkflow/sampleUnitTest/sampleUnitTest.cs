@@ -10,7 +10,7 @@ namespace MyLogicApp.Tests
     /// The unit test class.
     /// </summary>
     [TestClass]
-    public class MyLogicAppTest
+    public class sampleUnitTest
     {
         /// <summary>
         /// The unit test executor.
@@ -28,7 +28,7 @@ namespace MyLogicApp.Tests
         /// This method shows how to set up mock data, execute the workflow, and assert the outcome.
         /// </summary>
         [TestMethod]
-        public async Task sampleWorkflow_MyLogicAppTest_ExecuteWorkflow_SUCCESS_Sample1()
+        public async Task sampleWorkflow_sampleUnitTest_ExecuteWorkflow_SUCCESS_Sample1()
         {
             // PREPARE Mock
             // Generate mock trigger data.
@@ -67,7 +67,7 @@ namespace MyLogicApp.Tests
         /// This method shows how to set up mock data, execute the workflow, and assert the outcome.
         /// </summary>
         [TestMethod]
-        public async Task sampleWorkflow_MyLogicAppTest_ExecuteWorkflow_SUCCESS_Sample2()
+        public async Task sampleWorkflow_sampleUnitTest_ExecuteWorkflow_SUCCESS_Sample2()
         {
             // PREPARE
             // Generate mock trigger data.

@@ -33,6 +33,12 @@ steps:
       -p:ContinuousIntegrationBuild=true
   displayName: 'dotnet build ($(buildConfiguration))'
 
+# 3.5. Debugging – check what was built
+- script: |
+    echo "Listing test output directory:"
+    find Tests/MyLogicApp/bin/Release -maxdepth 3 -type f
+  displayName: ' Debug what got copied?'
+
 # 4. Run all tests; write TRX files to a predictable folder
 - script: |
     RESULTS_DIR=$(Agent.TempDirectory)/test-results

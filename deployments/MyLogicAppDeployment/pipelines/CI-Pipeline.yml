@@ -1,68 +1,53 @@
-# CI-Pipeline.yml
+# ──────────────────────────────────────────────────────────────────────────────
+# CI-Pipeline.yml – Run .NET 6 tests on Ubuntu and publish results
+# ──────────────────────────────────────────────────────────────────────────────
 trigger:
   branches:
-    include:
-      - '*'    # Run on pushes to any branch
+    include: [ main ]                 # Trigger on pushes to main (adjust as needed)
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest              # Uses Ubuntu 22.04 hosted agent
+
+variables:
+  buildConfiguration: 'Release'       # One place to change if you want Debug
+  dotnetVersion: '6.0.x'              # Installs latest 6.x SDK
 
 steps:
-- checkout: self
-  displayName: 'Checkout repository'
-
-# Install the NuGet tool for package management.
-- task: NuGetToolInstaller@1
-  inputs:
-    versionSpec: '>=5.0.0'
-  displayName: 'Install NuGet Tool'
-
-# Authenticate to Azure Artifacts to access packages from the AutomatedTesting feed.
-- task: NuGetAuthenticate@0
-  displayName: 'Authenticate to Azure Artifacts'
-
-# Install the .NET 6 SDK on the agent.
+# 1. Install the SDK that matches your code
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '6.0.x'
-    includePreviewVersions: false
-  displayName: 'Install .NET 6 SDK'
+    version: '$(dotnetVersion)'
+  displayName: 'Install .NET $(dotnetVersion) SDK'
 
-# Restore NuGet packages using DotNetCoreCLI@2.
-# Note: On the Ubuntu agent, use the relative path "Tests/nuget.config" (not the Windows absolute path).
-# Restore NuGet packages using DotNetCoreCLI@2.
-- task: DotNetCoreCLI@2
-  displayName: 'Restore NuGet packages'
-  inputs:
-    command: 'restore'
-    projects: 'Tests/Tests.sln'
-
+# 2. Restore dependencies (deterministic --locked-mode optional but recommended)
 - script: |
-    echo "Listing restored NuGet packages..."
-    dotnet list Tests/Tests.sln package --include-transitive
-  displayName: 'List restored NuGet packages'
+    dotnet restore Tests/Tests.sln --locked-mode
+  displayName: 'dotnet restore'
 
-# Build the solution in Release configuration (skip restore since it’s already done).
-- task: DotNetCoreCLI@2
-  displayName: 'Build solution'
-  inputs:
-    command: 'build'
-    projects: 'Tests/Tests.sln'
-    arguments: '--configuration Release --no-restore'
+# 3. Build the test solution (no restore again)
+- script: |
+    dotnet build Tests/Tests.sln \
+      --configuration $(buildConfiguration) \
+      --no-restore \
+      -p:ContinuousIntegrationBuild=true
+  displayName: 'dotnet build ($(buildConfiguration))'
 
-# Run tests using DotNetCoreCLI@2 and output the results in TRX format.
-- task: DotNetCoreCLI@2
-  displayName: 'Run tests'
-  inputs:
-    command: 'test'
-    projects: 'Tests/Tests.sln'
-    arguments: '--configuration Release --no-build --logger "trx;LogFileName=test_results.trx"'
+# 4. Run all tests; write TRX files to a predictable folder
+- script: |
+    RESULTS_DIR=$(Agent.TempDirectory)/test-results
+    mkdir -p "$RESULTS_DIR"
+    dotnet test Tests/Tests.sln \
+      --configuration $(buildConfiguration) \
+      --no-build \
+      --logger "trx;LogFileName=test-results.trx" \
+      --results-directory "$RESULTS_DIR"
+  displayName: 'dotnet test (generate TRX)'
 
-# Publish test results to Azure DevOps for visualization in the build summary.
+# 5. Publish TRX results so they appear in the Azure DevOps “Tests” tab
 - task: PublishTestResults@2
-  displayName: 'Publish test results'
   inputs:
     testResultsFormat: 'VSTest'
-    testResultsFiles: '**/test_results.trx'
-    mergeTestResults: true
+    testResultsFiles: '$(Agent.TempDirectory)/test-results/*.trx'
+    failTaskOnFailedTests: true       # Mark pipeline red if any test fails
+  displayName: 'Publish Test Results'

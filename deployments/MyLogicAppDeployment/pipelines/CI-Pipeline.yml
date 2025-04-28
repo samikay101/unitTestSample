@@ -33,8 +33,7 @@ stages:
           --configuration $(buildConfiguration) \
           --no-build \
           --logger trx \
-          --collect:"XPlat Code Coverage" \
-          --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+          --collect:"XPlat Code Coverage" 
       displayName: dotnet test
 
     - task: PublishTestResults@2

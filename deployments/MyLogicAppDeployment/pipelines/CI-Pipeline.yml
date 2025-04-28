@@ -28,12 +28,20 @@ stages:
     - script: dotnet build Tests/Tests.sln --configuration $(buildConfiguration) --no-restore --property:ContinuousIntegrationBuild=true
       displayName: dotnet build
 
+    # 🔍 NEW: List every JSON / config copied to output folder
+    - script: |
+        echo "=== Copied runtime assets (json / config) ==="
+        find Tests -path '*/bin/$(buildConfiguration)/*' \
+             \( -name '*.json' -o -name '*.config' \) -print | sort
+      displayName: verify copied files
+      condition: always()
+
     - script: |
         dotnet test Tests/Tests.sln \
           --configuration $(buildConfiguration) \
           --no-build \
           --logger trx \
-          --collect:"XPlat Code Coverage" 
+          --collect:"XPlat Code Coverage"
       displayName: dotnet test
 
     - task: PublishTestResults@2

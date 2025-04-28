@@ -1,14 +1,27 @@
 trigger:
   branches:
-    include: [ main ]
+    include:
+      - main
 
 pool:
   vmImage: ubuntu-latest
 
+# ────────────────────────────────────
+# Variables
+# ────────────────────────────────────
 variables:
-  buildConfiguration: 'Release'
-  dotnetVersion: '6.0.x'
+- name: buildConfiguration
+  value: 'Release'
 
+- name: dotnetVersion
+  value: '6.0.x'
+
+# Variable group that contains ARM_CONNECTION_KEY and ARM_CONNECTION_RUNTIME_URL
+- group: logicapp-unit-test-secrets
+
+# ────────────────────────────────────
+# Stages
+# ────────────────────────────────────
 stages:
 - stage: Build_Test
   jobs:
@@ -17,25 +30,58 @@ stages:
       vmImage: ubuntu-latest
 
     steps:
+    # Install the exact .NET SDK
     - task: UseDotNet@2
       inputs:
         packageType: sdk
         version: $(dotnetVersion)
 
+    # Restore NuGet packages in locked mode
     - script: dotnet restore Tests/Tests.sln --locked-mode
       displayName: dotnet restore
 
+    # Build the solution without restoring again
     - script: dotnet build Tests/Tests.sln --configuration $(buildConfiguration) --no-restore --property:ContinuousIntegrationBuild=true
       displayName: dotnet build
 
-    # 🔍 NEW: List every JSON / config copied to output folder
+    # List copied runtime assets for troubleshooting
     - script: |
         echo "=== Copied runtime assets (json / config) ==="
-        find Tests -path '*/bin/$(buildConfiguration)/*' \
+        find Tests -path "*/bin/$(buildConfiguration)/*" \
              \( -name '*.json' -o -name '*.config' \) -print | sort
       displayName: verify copied files
       condition: always()
 
+    # Create local.settings.json with secrets pulled from the variable group
+    - task: Bash@3
+      displayName: Create local.settings.json for unit tests
+      env:
+        ARM_CONNECTION_KEY: $(ARM_CONNECTION_KEY)
+        ARM_CONNECTION_RUNTIME_URL: $(ARM_CONNECTION_RUNTIME_URL)
+      inputs:
+        targetType: inline
+        workingDirectory: '$(Build.SourcesDirectory)/MyLogicApp'
+        script: |
+          cat > local.settings.json <<EOF
+          {
+            "IsEncrypted": false,
+            "Values": {
+              "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+              "FUNCTIONS_WORKER_RUNTIME": "node",
+              "APP_KIND": "workflowapp",
+              "ProjectDirectoryPath": "c:\\\\Users\\\\samikarakra\\\\Desktop\\\\CICDTemplate\\\\WS-1\\\\MyLogicApp",
+              "WORKFLOWS_TENANT_ID": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+              "WORKFLOWS_SUBSCRIPTION_ID": "80d4fe69-c95b-4dd2-a938-9250f1c8ab03",
+              "WORKFLOWS_RESOURCE_GROUP_NAME": "SamiEastUS2EUAP",
+              "WORKFLOWS_LOCATION_NAME": "eastus2euap",
+              "WORKFLOWS_MANAGEMENT_BASE_URI": "https://management.azure.com/",
+              "arm-connectionKey": "${ARM_CONNECTION_KEY}",
+              "arm-ConnectionRuntimeUrl": "${ARM_CONNECTION_RUNTIME_URL}"
+            }
+          }
+          EOF
+
+    # Run unit tests and collect code coverage
     - script: |
         dotnet test Tests/Tests.sln \
           --configuration $(buildConfiguration) \
@@ -44,6 +90,7 @@ stages:
           --collect:"XPlat Code Coverage"
       displayName: dotnet test
 
+    # Publish test results
     - task: PublishTestResults@2
       condition: succeededOrFailed()
       inputs:
@@ -51,6 +98,7 @@ stages:
         testResultsFiles: '**/*.trx'
         failTaskOnFailedTests: true
 
+    # Publish code coverage results
     - task: PublishCodeCoverageResults@2
       inputs:
         codeCoverageTool: Cobertura

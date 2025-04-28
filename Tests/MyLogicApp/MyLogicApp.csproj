@@ -17,22 +17,23 @@
     <PackageReference Include="coverlet.collector"      Version="3.1.2" />
   </ItemGroup>
 
-  <!-- ─────── Test-data that already lives **inside** the test project ─────── -->
+  <!-- ─────── Test‑data that already lives **inside** the test project ─────── -->
   <ItemGroup Label="WorkflowTestData">
     <!-- Any file under MockOutputs or a *Workflow folder -->
     <None Update="**/MockOutputs/**/*;**/*Workflow/**/*"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <!-- ─────── NEW : copy the *real* workflow definitions from the app ─────── -->
+  <!-- ─────── Copy the *real* workflow definitions from the main app ─────── -->
   <ItemGroup Label="WorkflowDefinitions">
     <!--
-      Adjust the relative path if you move folders.
-      This grabs every *.json under any folder that ends in *Workflow* (e.g. MyWorkflowSample)
-      that lives beneath the main Logic-App project at ../../MyLogicApp/
+      Grabs every *.json underneath any folder whose name ends with "Workflow" in
+      the main Logic‑App project (two levels up from this test project).  We strip
+      the leading "MyLogicApp/" segment so the file lands where the Unit‑Testing
+      SDK expects it (case‑sensitive on Linux).
     -->
     <None Include="..\..\MyLogicApp\**\*Workflow*\**\*.json"
-          Link="%(RecursiveDir)%(Filename)%(Extension)"
+          Link="%(RecursiveDir.Replace('MyLogicApp/',''))%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

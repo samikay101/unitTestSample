@@ -17,10 +17,22 @@
     <PackageReference Include="coverlet.collector"      Version="3.1.2" />
   </ItemGroup>
 
-  <!-- ─────── Test data copied to bin/… ─────── -->
+  <!-- ─────── Test-data that already lives **inside** the test project ─────── -->
   <ItemGroup Label="WorkflowTestData">
-    <!-- Add Copy-to-output metadata to any file under MockOutputs or *Workflow -->
+    <!-- Any file under MockOutputs or a *Workflow folder -->
     <None Update="**/MockOutputs/**/*;**/*Workflow/**/*"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- ─────── NEW : copy the *real* workflow definitions from the app ─────── -->
+  <ItemGroup Label="WorkflowDefinitions">
+    <!--
+      Adjust the relative path if you move folders.
+      This grabs every *.json under any folder that ends in *Workflow* (e.g. MyWorkflowSample)
+      that lives beneath the main Logic-App project at ../../MyLogicApp/
+    -->
+    <None Include="..\..\MyLogicApp\**\*Workflow*\**\*.json"
+          Link="%(RecursiveDir)%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

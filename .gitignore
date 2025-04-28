@@ -1,0 +1,33 @@
+# Ignore build artifacts
+**/bin/
+**/obj/
+**/TestResults/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore Visual Studio Code settings
+.vscode/
+
+# Ignore Rider IDE settings
+.idea/
+
+# Ignore build output folders
+artifacts/
+
+# Ignore temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Ignore NuGet packages
+*.nupkg
+# Ignore package folders (optional if using package references instead of packages.config)
+**/packages/
+
+# Ignore local .NET tool manifests
+.dotnet-tools.json

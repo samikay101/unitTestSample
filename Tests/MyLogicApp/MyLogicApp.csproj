@@ -1,37 +1,53 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- ────────────── Project Settings ────────────── -->
+  <!-- ────────────── Project settings ────────────── -->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
-  <!-- ────────────── Package References ────────────── -->
+  <!-- ────────────── Package references ────────────── -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
-    <PackageReference Include="MSTest" Version="3.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk"                     Version="17.8.0" />
+    <PackageReference Include="MSTest.TestAdapter"                         Version="3.2.0" />
+    <PackageReference Include="MSTest.TestFramework"                       Version="3.2.0" />
     <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview" />
-    <PackageReference Include="coverlet.collector" Version="3.1.2" />
+    <PackageReference Include="coverlet.collector"                         Version="3.1.2" />
   </ItemGroup>
 
-  <!-- ────────────── Unit Test Settings Config Files ────────────── -->
+  <!-- ────────────── Unit-test settings (local .config) ────────────── -->
   <ItemGroup Label="UnitTestSettingsConfig">
-    <Content Include="sampleWorkflow\*.config" Link="sampleWorkflow\%(RecursiveDir)%(Filename)%(Extension)">
+    <Content Include="sampleWorkflow\*.config"
+             Link="sampleWorkflow\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
-  <!-- ────────────── Workflow Test Data Files ────────────── -->
+  <!-- ────────────── Workflow test-data files (linked from app) ────────────── -->
+  <!-- Adjust the ..\..\ depth if your folder structure differs -->
   <ItemGroup Label="WorkflowTestData">
-    <!-- Mock, workflow, and connection files -->
-    <None Include="**\*-mock.json"      CopyToOutputDirectory="PreserveNewest" />
-    <None Include="**\workflow.json"    CopyToOutputDirectory="PreserveNewest" />
-    <None Include="**\connections.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="**\parameters.json"  CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- Workflow definition -->
+    <None Include="..\..\MyLogicApp\sampleWorkflow\workflow.json"
+          Link="sampleWorkflow\workflow.json"
+          CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- App-level files -->
+    <None Include="..\..\MyLogicApp\connections.json"
+          Link="connections.json"
+          CopyToOutputDirectory="PreserveNewest" />
+
+    <None Include="..\..\MyLogicApp\parameters.json"
+          Link="parameters.json"
+          CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- Any mock JSONs that live next to workflow.json -->
+    <None Include="..\..\MyLogicApp\sampleWorkflow\*-mock.json"
+          Link="sampleWorkflow\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+
   </ItemGroup>
 
 </Project>

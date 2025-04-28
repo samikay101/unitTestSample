@@ -1,6 +1,10 @@
 trigger:
-  branches: main 
-  
+  branches:
+    include: [ main ]
+
+pool:
+  vmImage: ubuntu-latest
+
 variables:
   buildConfiguration: 'Release'
   dotnetVersion: '6.0.x'
@@ -11,29 +15,26 @@ stages:
   - job: BuildTest
     pool:
       vmImage: ubuntu-latest
+
     steps:
-    # Exact SDK (hosted agent already has 6.x, but pinning is deterministic)
     - task: UseDotNet@2
       inputs:
         packageType: sdk
         version: $(dotnetVersion)
 
-    # Restore from public nuget.org (fast; no auth required)
     - script: dotnet restore Tests/Tests.sln --locked-mode
       displayName: dotnet restore
 
-    # Compile once
     - script: dotnet build Tests/Tests.sln --configuration $(buildConfiguration) --no-restore --property:ContinuousIntegrationBuild=true
       displayName: dotnet build
 
-    # Run tests + cross-platform coverage
     - script: |
         dotnet test Tests/Tests.sln \
           --configuration $(buildConfiguration) \
           --no-build \
           --logger trx \
           --collect:"XPlat Code Coverage" \
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+          --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
       displayName: dotnet test
 
     - task: PublishTestResults@2
@@ -47,3 +48,4 @@ stages:
       inputs:
         codeCoverageTool: Cobertura
         summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+        reportDirectory: '$(Agent.TempDirectory)'

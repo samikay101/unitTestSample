@@ -1,40 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-
-  <!-- ────────────── Packages ────────────── -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk"  Version="17.8.0" />
-    <PackageReference Include="MSTest.TestFramework"    Version="3.2.0" />
-    <PackageReference Include="MSTest.TestAdapter"      Version="3.2.0" />
-    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension"
-                      Version="1.0.0-preview" />
-    <PackageReference Include="coverlet.collector"      Version="3.1.2" />
+    <PackageReference Include="MSTest" Version="3.2.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0"/>
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.0"/>
+    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview"/>
+    <PackageReference Include="coverlet.collector" Version="3.1.2"/>
   </ItemGroup>
-
-  <!-- ─────── Test‑data that already lives **inside** the test project ─────── -->
-  <ItemGroup Label="WorkflowTestData">
-    <!-- Any file under MockOutputs or a *Workflow folder -->
-    <None Update="**/MockOutputs/**/*;**/*Workflow/**/*"
-          CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup Label="UnitTestSettingsConfig">
+    <Content Include="sampleWorkflow\*.config" Link="sampleWorkflow\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
-
-  <!-- ─────── Copy the *real* workflow definitions from the main app ─────── -->
-  <ItemGroup Label="WorkflowDefinitions">
-    <!--
-      Grabs every *.json underneath any folder whose name ends with "Workflow" in
-      the main Logic‑App project (two levels up from this test project).  We strip
-      the leading "MyLogicApp/" segment so the file lands where the Unit‑Testing
-      SDK expects it (case‑sensitive on Linux).
-    -->
-    <None Include="..\..\MyLogicApp\**\*Workflow*\**\*.json"
-          Link="%(RecursiveDir.Replace('MyLogicApp/',''))%(Filename)%(Extension)"
-          CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
 </Project>

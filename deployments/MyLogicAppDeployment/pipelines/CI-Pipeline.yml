@@ -16,7 +16,7 @@ variables:
 - name: dotnetVersion
   value: '6.0.x'
 
-# Variable group that contains ARM_CONNECTION_KEY and ARM_CONNECTION_RUNTIME_URL
+# Variable-group that holds ARM_CONNECTION_KEY and ARM_CONNECTION_RUNTIME_URL
 - group: logicapp-unit-test-secrets
 
 # ────────────────────────────────────
@@ -30,38 +30,31 @@ stages:
       vmImage: ubuntu-latest
 
     steps:
-    # Install the exact .NET SDK
+    # Install the requested .NET SDK
     - task: UseDotNet@2
       inputs:
         packageType: sdk
         version: $(dotnetVersion)
 
-    # Restore NuGet packages in locked mode
+    # Restore and build
     - script: dotnet restore Tests/Tests.sln --locked-mode
       displayName: dotnet restore
 
-    # Build the solution without restoring again
     - script: dotnet build Tests/Tests.sln --configuration $(buildConfiguration) --no-restore --property:ContinuousIntegrationBuild=true
       displayName: dotnet build
 
-    # List copied runtime assets for troubleshooting
-    - script: |
-        echo "=== Copied runtime assets (json / config) ==="
-        find Tests -path "*/bin/$(buildConfiguration)/*" \
-             \( -name '*.json' -o -name '*.config' \) -print | sort
-      displayName: verify copied files
-      condition: always()
-
-    # Create local.settings.json with secrets pulled from the variable group
+    # Create local.settings.json in the test output directory
+    # Path: Tests/MyLogicApp/bin/Release/net6.0
     - task: Bash@3
-      displayName: Create local.settings.json for unit tests
+      displayName: Create local.settings.json in test output folder
       env:
-        ARM_CONNECTION_KEY: $(ARM_CONNECTION_KEY)
+        ARM_CONNECTION_KEY:         $(ARM_CONNECTION_KEY)
         ARM_CONNECTION_RUNTIME_URL: $(ARM_CONNECTION_RUNTIME_URL)
       inputs:
         targetType: inline
-        workingDirectory: '$(Build.SourcesDirectory)/MyLogicApp'
+        workingDirectory: '$(Build.SourcesDirectory)/Tests/MyLogicApp/bin/$(buildConfiguration)/net6.0'
         script: |
+          echo "Working directory: $(pwd)"
           cat > local.settings.json <<EOF
           {
             "IsEncrypted": false,
@@ -81,7 +74,15 @@ stages:
           }
           EOF
 
-    # Run unit tests and collect code coverage
+    # Optional: list json/config files copied to output for troubleshooting
+    - script: |
+        echo "=== Copied runtime assets (json / config) ==="
+        find Tests -path "*/bin/$(buildConfiguration)/*" \
+             \( -name '*.json' -o -name '*.config' \) -print | sort
+      displayName: verify copied files
+      condition: always()
+
+    # Run tests and collect coverage
     - script: |
         dotnet test Tests/Tests.sln \
           --configuration $(buildConfiguration) \
@@ -98,7 +99,7 @@ stages:
         testResultsFiles: '**/*.trx'
         failTaskOnFailedTests: true
 
-    # Publish code coverage results
+    # Publish code-coverage report
     - task: PublishCodeCoverageResults@2
       inputs:
         codeCoverageTool: Cobertura

@@ -1,8 +1,6 @@
 trigger:
-  branches: [ main ]
-pr:
-  branches: [ main ]
-
+  branches: main 
+  
 variables:
   buildConfiguration: 'Release'
   dotnetVersion: '6.0.x'

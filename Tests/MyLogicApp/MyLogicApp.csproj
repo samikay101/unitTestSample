@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ────────────── Project Settings ────────────── -->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+
+  <!-- ────────────── Package References ────────────── -->
   <ItemGroup>
-    <PackageReference Include="MSTest" Version="3.2.0"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0"/>
-    <PackageReference Include="MSTest.TestFramework" Version="3.2.0"/>
-    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview"/>
-    <PackageReference Include="coverlet.collector" Version="3.1.2"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
+    <PackageReference Include="MSTest" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2" />
   </ItemGroup>
+
+  <!-- ────────────── Unit Test Settings Config Files ────────────── -->
   <ItemGroup Label="UnitTestSettingsConfig">
     <Content Include="sampleWorkflow\*.config" Link="sampleWorkflow\%(RecursiveDir)%(Filename)%(Extension)">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <!-- ────────────── Workflow Test Data Files ────────────── -->
+  <ItemGroup Label="WorkflowTestData">
+    <!-- Mock, workflow, and connection files -->
+    <None Include="**\*-mock.json"      CopyToOutputDirectory="PreserveNewest" />
+    <None Include="**\workflow.json"    CopyToOutputDirectory="PreserveNewest" />
+    <None Include="**\connections.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="**\parameters.json"  CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

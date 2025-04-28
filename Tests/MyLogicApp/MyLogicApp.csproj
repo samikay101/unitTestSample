@@ -7,26 +7,20 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
-  <!-- ───────────────────────────── Packages ───────────────────────────── -->
+  <!-- ────────────── Packages ────────────── -->
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk"  Version="17.8.0" />
     <PackageReference Include="MSTest.TestFramework"    Version="3.2.0" />
     <PackageReference Include="MSTest.TestAdapter"      Version="3.2.0" />
-    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview" />
+    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension"
+                      Version="1.0.0-preview" />
     <PackageReference Include="coverlet.collector"      Version="3.1.2" />
   </ItemGroup>
 
-  <!-- ────────────────────────  NEW  : copy test-data  ──────────────────── -->
+  <!-- ─────── Test data copied to bin/… ─────── -->
   <ItemGroup Label="WorkflowTestData">
-    <!--
-      Copy *everything* under any folder that contains MockOutputs or
-      is named *Workflow (case-insensitive) to the build output.
-      You can tighten the Include pattern later if you prefer.
-    -->
-    <None Include="**/MockOutputs/**/*"
-          CopyToOutputDirectory="PreserveNewest" />
-
-    <None Include="**/*Workflow/**/*"
+    <!-- Add Copy-to-output metadata to any file under MockOutputs or *Workflow -->
+    <None Update="**/MockOutputs/**/*;**/*Workflow/**/*"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

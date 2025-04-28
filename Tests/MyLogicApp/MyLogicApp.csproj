@@ -25,16 +25,20 @@
     </Content>
   </ItemGroup>
 
-  <!-- ────────────── Workflow test-data files (linked from app) ────────────── -->
-  <!-- Adjust the ..\..\ depth if your folder structure differs -->
+  <!-- ────────────── Workflow Test Data (mock.json, workflow.json, connections, etc) ────────────── -->
   <ItemGroup Label="WorkflowTestData">
+
+    <!-- Mock JSON files next to workflow.json -->
+    <None Include="..\..\MyLogicApp\sampleWorkflow\*-mock.json"
+          Link="sampleWorkflow\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
 
     <!-- Workflow definition -->
     <None Include="..\..\MyLogicApp\sampleWorkflow\workflow.json"
           Link="sampleWorkflow\workflow.json"
           CopyToOutputDirectory="PreserveNewest" />
 
-    <!-- App-level files -->
+    <!-- Logic App root files -->
     <None Include="..\..\MyLogicApp\connections.json"
           Link="connections.json"
           CopyToOutputDirectory="PreserveNewest" />
@@ -43,9 +47,8 @@
           Link="parameters.json"
           CopyToOutputDirectory="PreserveNewest" />
 
-    <!-- Any mock JSONs that live next to workflow.json -->
-    <None Include="..\..\MyLogicApp\sampleWorkflow\*-mock.json"
-          Link="sampleWorkflow\%(Filename)%(Extension)"
+    <None Include="..\..\MyLogicApp\local.settings.json"
+          Link="local.settings.json"
           CopyToOutputDirectory="PreserveNewest" />
 
   </ItemGroup>

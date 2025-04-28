@@ -1,21 +1,33 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+
+  <!-- ───────────────────────────── Packages ───────────────────────────── -->
   <ItemGroup>
-    <PackageReference Include="MSTest" Version="3.2.0"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0"/>
-    <PackageReference Include="MSTest.TestFramework" Version="3.2.0"/>
-    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview"/>
-    <PackageReference Include="coverlet.collector" Version="3.1.2"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk"  Version="17.8.0" />
+    <PackageReference Include="MSTest.TestFramework"    Version="3.2.0" />
+    <PackageReference Include="MSTest.TestAdapter"      Version="3.2.0" />
+    <PackageReference Include="Microsoft.Azure.Workflows.WebJobs.Tests.Extension" Version="1.0.0-preview" />
+    <PackageReference Include="coverlet.collector"      Version="3.1.2" />
   </ItemGroup>
-  <ItemGroup Label="UnitTestSettingsConfig">
-    <Content Include="sampleWorkflow\*.config" Link="sampleWorkflow\%(RecursiveDir)%(Filename)%(Extension)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+
+  <!-- ────────────────────────  NEW  : copy test-data  ──────────────────── -->
+  <ItemGroup Label="WorkflowTestData">
+    <!--
+      Copy *everything* under any folder that contains MockOutputs or
+      is named *Workflow (case-insensitive) to the build output.
+      You can tighten the Include pattern later if you prefer.
+    -->
+    <None Include="**/MockOutputs/**/*"
+          CopyToOutputDirectory="PreserveNewest" />
+
+    <None Include="**/*Workflow/**/*"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
 </Project>

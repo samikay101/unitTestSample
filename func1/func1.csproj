@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ============================================================
+       func1.csproj – Console runner for LogicApp trigger
+       • .NET 8 single-target EXE
+       • Uses DefaultAzureCredential to call the workflow
+       • No Azure Functions / WebJobs SDK references
+       ============================================================ -->
+
+  <PropertyGroup>
+    <!-- Build / language settings -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Optional: tighten quality gates -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Azure AD token acquisition -->
+    <PackageReference Include="Azure.Identity"
+                      Version="1.14.0" />
+
+    <!-- Optional helpers (if you call Azure SDK clients later) -->
+    <PackageReference Include="Microsoft.Extensions.Azure"
+                      Version="1.12.0" />
+
+    <!-- Basic logging (optional; remove if unused) -->
+    <PackageReference Include="Microsoft.Extensions.Logging"
+                      Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"
+                      Version="8.0.3" />
+  </ItemGroup>
+
+</Project>

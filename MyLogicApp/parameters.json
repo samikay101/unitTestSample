@@ -10,5 +10,41 @@
       "scheme": "Key",
       "parameter": "@appsetting('arm-connectionKey')"
     }
+  },
+  "msnweather-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('msnweather-ConnectionRuntimeUrl')"
+  },
+  "msnweather-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "Raw",
+      "scheme": "Key",
+      "parameter": "@appsetting('msnweather-connectionKey')"
+    }
+  },
+  "msnweather-1-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('msnweather-1-ConnectionRuntimeUrl')"
+  },
+  "msnweather-1-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "Raw",
+      "scheme": "Key",
+      "parameter": "@appsetting('msnweather-1-connectionKey')"
+    }
+  },
+  "msnweather-2-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('msnweather-2-ConnectionRuntimeUrl')"
+  },
+  "msnweather-2-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "Raw",
+      "scheme": "Key",
+      "parameter": "@appsetting('msnweather-2-connectionKey')"
+    }
   }
 }

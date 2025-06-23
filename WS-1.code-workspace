@@ -8,8 +8,8 @@
       "path": "deployments"
     },
     {
-      "name": "Tests",
-      "path": "Tests"
+      "name": "func1",
+      "path": "./func1"
     }
   ],
   "settings": {
